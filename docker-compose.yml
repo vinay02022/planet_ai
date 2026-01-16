@@ -1,0 +1,93 @@
+version: '3.8'
+
+services:
+  # Frontend Service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      - VITE_API_URL=http://localhost:8000/api/v1
+    networks:
+      - workflow-network
+    restart: unless-stopped
+
+  # Backend Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      chromadb:
+        condition: service_started
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://workflow_user:workflow_pass@db:5432/workflow_db
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - SERPAPI_KEY=${SERPAPI_KEY}
+      - BRAVE_API_KEY=${BRAVE_API_KEY}
+      - DEBUG=false
+      - CORS_ORIGINS=["http://localhost:3000"]
+    volumes:
+      - backend_uploads:/app/uploads
+    networks:
+      - workflow-network
+    restart: unless-stopped
+
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: workflow_user
+      POSTGRES_PASSWORD: workflow_pass
+      POSTGRES_DB: workflow_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - workflow-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U workflow_user -d workflow_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ChromaDB Vector Store
+  chromadb:
+    image: chromadb/chroma:latest
+    ports:
+      - "8001:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - ANONYMIZED_TELEMETRY=FALSE
+    networks:
+      - workflow-network
+    restart: unless-stopped
+
+# Volumes
+volumes:
+  postgres_data:
+    driver: local
+  chroma_data:
+    driver: local
+  backend_uploads:
+    driver: local
+
+# Networks
+networks:
+  workflow-network:
+    driver: bridge
