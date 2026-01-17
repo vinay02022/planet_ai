@@ -55,5 +55,7 @@ docker-compose.override.yml
 *.tmp
 .cache/
 
-# Personal requirements file (not for GitHub)
+# Personal files (not for GitHub)
 requirements.md
+COMMIT_GUIDE.md
+abc.js
