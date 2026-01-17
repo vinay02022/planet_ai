@@ -15,7 +15,7 @@ class ChatMessage(Base):
     session_id = Column(String(100), nullable=False)  # For grouping messages
     role = Column(String(20), nullable=False)  # user, assistant, system
     content = Column(Text, nullable=False)
-    metadata = Column(JSON, nullable=True)  # Execution details, timings, etc.
+    meta_info = Column(JSON, nullable=True)  # Execution details, timings, etc.
     created_at = Column(DateTime, default=datetime.utcnow)
 
     def __repr__(self):

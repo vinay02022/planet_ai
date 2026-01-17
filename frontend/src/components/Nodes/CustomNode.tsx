@@ -11,10 +11,10 @@ import {
 import { useWorkflowStore } from '../../store/workflowStore';
 
 const nodeIcons: Record<string, React.ReactNode> = {
-  userQuery: <MessageSquare className="w-5 h-5" />,
-  knowledgeBase: <Database className="w-5 h-5" />,
-  llmEngine: <Cpu className="w-5 h-5" />,
-  output: <MonitorPlay className="w-5 h-5" />,
+  userQuery: <MessageSquare className="w-4 h-4" />,
+  knowledgeBase: <Database className="w-4 h-4" />,
+  llmEngine: <Cpu className="w-4 h-4" />,
+  output: <MonitorPlay className="w-4 h-4" />,
 };
 
 const nodeColors: Record<string, { bg: string; border: string; icon: string }> = {
@@ -52,10 +52,10 @@ const CustomNode: React.FC<NodeProps<CustomNodeData>> = ({ id, data, selected })
   return (
     <div
       className={`
-        relative min-w-[180px] rounded-lg shadow-md border-2 transition-all
+        relative w-[140px] rounded-lg shadow-sm border-2 transition-all
         ${colors.bg} ${colors.border}
-        ${selected ? 'ring-2 ring-indigo-500 ring-offset-2' : ''}
-        hover:shadow-lg cursor-pointer
+        ${selected ? 'ring-2 ring-indigo-500 ring-offset-1' : ''}
+        hover:shadow-md cursor-pointer
       `}
       onClick={() => selectNode({ id, data, position: { x: 0, y: 0 }, type: 'custom' } as any)}
     >
@@ -64,37 +64,34 @@ const CustomNode: React.FC<NodeProps<CustomNodeData>> = ({ id, data, selected })
         <Handle
           type="target"
           position={Position.Left}
-          className="w-3 h-3 !bg-gray-400 border-2 border-white"
+          className="w-2.5 h-2.5 !bg-gray-400 border-2 border-white"
         />
       )}
 
       {/* Node Content */}
-      <div className="p-4">
-        <div className="flex items-center justify-between mb-2">
+      <div className="p-2">
+        <div className="flex items-center justify-between mb-1">
           <div className={`${colors.icon}`}>
             {nodeIcons[data.type]}
           </div>
           <button
             onClick={handleDelete}
-            className="p-1 hover:bg-red-100 rounded-full text-gray-400 hover:text-red-500 transition-colors"
+            className="p-0.5 hover:bg-red-100 rounded text-gray-400 hover:text-red-500 transition-colors"
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className="w-3 h-3" />
           </button>
         </div>
-        <h3 className="font-semibold text-gray-800 text-sm">{data.label}</h3>
-        <p className="text-xs text-gray-500 mt-1 capitalize">
-          {data.type.replace(/([A-Z])/g, ' $1').trim()}
-        </p>
+        <h3 className="font-medium text-gray-800 text-xs leading-tight">{data.label}</h3>
 
         {/* Config Preview */}
         {data.type === 'llmEngine' && data.config.provider && (
-          <div className="mt-2 text-xs bg-white/50 rounded px-2 py-1">
-            {data.config.provider} / {data.config.model}
+          <div className="mt-1 text-[10px] bg-white/60 rounded px-1.5 py-0.5 text-gray-600 truncate">
+            {data.config.provider}
           </div>
         )}
-        {data.type === 'knowledgeBase' && data.config.documents && (
-          <div className="mt-2 text-xs bg-white/50 rounded px-2 py-1">
-            {data.config.documents.length} document(s)
+        {data.type === 'knowledgeBase' && (
+          <div className="mt-1 text-[10px] bg-white/60 rounded px-1.5 py-0.5 text-gray-600">
+            {data.config.documents?.length || 0} docs
           </div>
         )}
       </div>
@@ -104,7 +101,7 @@ const CustomNode: React.FC<NodeProps<CustomNodeData>> = ({ id, data, selected })
         <Handle
           type="source"
           position={Position.Right}
-          className="w-3 h-3 !bg-indigo-500 border-2 border-white"
+          className="w-2.5 h-2.5 !bg-indigo-500 border-2 border-white"
         />
       )}
     </div>

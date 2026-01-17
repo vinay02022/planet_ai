@@ -140,13 +140,12 @@ const ConfigPanel: React.FC = () => {
               Embedding Model
             </label>
             <select
-              value={selectedNode.data.config.embeddingModel || 'openai'}
+              value={selectedNode.data.config.embeddingModel || 'gemini'}
               onChange={(e) => updateNodeData(selectedNode.id, {
                 config: { ...selectedNode.data.config, embeddingModel: e.target.value }
               })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              <option value="openai">OpenAI</option>
               <option value="gemini">Gemini</option>
             </select>
           </div>
@@ -266,13 +265,12 @@ const ConfigPanel: React.FC = () => {
               Provider
             </label>
             <select
-              value={selectedNode.data.config.provider || 'openai'}
+              value={selectedNode.data.config.provider || 'gemini'}
               onChange={(e) => updateNodeData(selectedNode.id, {
                 config: { ...selectedNode.data.config, provider: e.target.value }
               })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              <option value="openai">OpenAI</option>
               <option value="gemini">Gemini</option>
             </select>
           </div>
@@ -282,25 +280,14 @@ const ConfigPanel: React.FC = () => {
               Model
             </label>
             <select
-              value={selectedNode.data.config.model || 'gpt-4o-mini'}
+              value={selectedNode.data.config.model || 'gemini-1.5-flash'}
               onChange={(e) => updateNodeData(selectedNode.id, {
                 config: { ...selectedNode.data.config, model: e.target.value }
               })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              {selectedNode.data.config.provider === 'gemini' ? (
-                <>
-                  <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
-                  <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
-                </>
-              ) : (
-                <>
-                  <option value="gpt-4o-mini">GPT-4o Mini</option>
-                  <option value="gpt-4o">GPT-4o</option>
-                  <option value="gpt-4-turbo">GPT-4 Turbo</option>
-                  <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-                </>
-              )}
+              <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+              <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
             </select>
           </div>
 

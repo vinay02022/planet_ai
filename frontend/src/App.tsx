@@ -11,15 +11,6 @@ function App() {
     event.dataTransfer.effectAllowed = 'move';
   }, []);
 
-  const onDragOver = useCallback((event: React.DragEvent) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
-  }, []);
-
-  const onDrop = useCallback((event: React.DragEvent) => {
-    event.preventDefault();
-  }, []);
-
   return (
     <div className="h-screen flex flex-col bg-gray-50">
       {/* Toolbar */}
@@ -31,7 +22,7 @@ function App() {
         <ComponentLibrary onDragStart={onDragStart} />
 
         {/* Canvas */}
-        <WorkflowCanvas onDrop={onDrop} onDragOver={onDragOver} />
+        <WorkflowCanvas />
 
         {/* Config Panel */}
         <ConfigPanel />

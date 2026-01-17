@@ -72,6 +72,7 @@ interface WorkflowState {
   loadWorkflow: (nodes: Node<CustomNodeData>[], edges: Edge[]) => void;
 }
 
+// Default to Gemini since user doesn't have OpenAI key
 const defaultNodeData: Record<string, CustomNodeData> = {
   userQuery: {
     label: 'User Query',
@@ -83,7 +84,7 @@ const defaultNodeData: Record<string, CustomNodeData> = {
     type: 'knowledgeBase',
     config: {
       documents: [],
-      embeddingModel: 'openai',
+      embeddingModel: 'gemini',
       topK: 5,
     },
   },
@@ -91,8 +92,8 @@ const defaultNodeData: Record<string, CustomNodeData> = {
     label: 'LLM Engine',
     type: 'llmEngine',
     config: {
-      provider: 'openai',
-      model: 'gpt-4o-mini',
+      provider: 'gemini',
+      model: 'gemini-1.5-flash',
       systemPrompt: '',
       temperature: 0.7,
       useWebSearch: false,
@@ -151,7 +152,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
       id: uuidv4(),
       type: 'custom',
       position,
-      data: { ...defaultNodeData[type] },
+      data: { ...defaultNodeData[type], config: { ...defaultNodeData[type].config } },
     };
 
     set({
@@ -160,12 +161,34 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   },
 
   updateNodeData: (nodeId, data) => {
+    const updatedNodes = get().nodes.map((node) => {
+      if (node.id === nodeId) {
+        const newConfig = data.config
+          ? { ...node.data.config, ...data.config }
+          : node.data.config;
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            ...data,
+            config: newConfig,
+          },
+        };
+      }
+      return node;
+    });
+
+    // Also update selectedNode if it's the one being updated
+    const selectedNode = get().selectedNode;
+    let updatedSelectedNode = selectedNode;
+    if (selectedNode && selectedNode.id === nodeId) {
+      const updatedNode = updatedNodes.find(n => n.id === nodeId);
+      updatedSelectedNode = updatedNode || null;
+    }
+
     set({
-      nodes: get().nodes.map((node) =>
-        node.id === nodeId
-          ? { ...node, data: { ...node.data, ...data, config: { ...node.data.config, ...data.config } } }
-          : node
-      ),
+      nodes: updatedNodes,
+      selectedNode: updatedSelectedNode,
     });
   },
 

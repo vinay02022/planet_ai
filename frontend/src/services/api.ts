@@ -95,7 +95,7 @@ export const llmApi = {
       query: params.query,
       context: params.context,
       system_prompt: params.systemPrompt,
-      provider: params.provider || 'openai',
+      provider: params.provider || 'gemini',
       model: params.model,
       temperature: params.temperature || 0.7,
     });

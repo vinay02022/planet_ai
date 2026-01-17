@@ -66,7 +66,7 @@ services:
 
   # ChromaDB Vector Store
   chromadb:
-    image: chromadb/chroma:latest
+    image: chromadb/chroma:0.4.24
     ports:
       - "8001:8000"
     volumes:
@@ -74,6 +74,7 @@ services:
     environment:
       - IS_PERSISTENT=TRUE
       - ANONYMIZED_TELEMETRY=FALSE
+      - ALLOW_RESET=TRUE
     networks:
       - workflow-network
     restart: unless-stopped

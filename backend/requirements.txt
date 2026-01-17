@@ -12,7 +12,8 @@ psycopg2-binary==2.9.9
 alembic==1.13.1
 
 # Vector Store
-chromadb==0.4.22
+chromadb==0.4.24
+numpy<2.0
 
 # LLM and Embeddings
 openai==1.12.0

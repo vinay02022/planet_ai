@@ -3,6 +3,7 @@ from chromadb.config import Settings as ChromaSettings
 from typing import List, Optional, Dict, Any
 import openai
 import google.generativeai as genai
+import os
 
 from app.core.config import settings
 
@@ -10,10 +11,26 @@ from app.core.config import settings
 class EmbeddingService:
     def __init__(self):
         # Initialize ChromaDB client
-        self.chroma_client = chromadb.HttpClient(
-            host=settings.CHROMA_HOST,
-            port=settings.CHROMA_PORT,
-        )
+        # Use HTTP client if CHROMA_HOST is set, otherwise use persistent local storage
+        if settings.CHROMA_HOST:
+            self.chroma_client = chromadb.HttpClient(
+                host=settings.CHROMA_HOST,
+                port=settings.CHROMA_PORT,
+                settings=ChromaSettings(
+                    anonymized_telemetry=False,
+                    allow_reset=True,
+                )
+            )
+        else:
+            # Use persistent local storage for cloud deployment
+            os.makedirs(settings.CHROMA_PERSIST_DIR, exist_ok=True)
+            self.chroma_client = chromadb.PersistentClient(
+                path=settings.CHROMA_PERSIST_DIR,
+                settings=ChromaSettings(
+                    anonymized_telemetry=False,
+                    allow_reset=True,
+                )
+            )
         self.collection_name = settings.CHROMA_COLLECTION_NAME
 
         # Initialize OpenAI client

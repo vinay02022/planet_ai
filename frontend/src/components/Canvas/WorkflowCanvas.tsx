@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import ReactFlow, {
   Background,
   Controls,
@@ -15,14 +15,9 @@ const nodeTypes = {
   custom: CustomNode,
 };
 
-interface WorkflowCanvasProps {
-  onDrop: (event: React.DragEvent) => void;
-  onDragOver: (event: React.DragEvent) => void;
-}
-
-const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({ onDrop, onDragOver }) => {
+const WorkflowCanvas: React.FC = () => {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const [reactFlowInstance, setReactFlowInstance] = React.useState<ReactFlowInstance | null>(null);
+  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
 
   const {
     nodes,
@@ -31,32 +26,48 @@ const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({ onDrop, onDragOver }) =
     onEdgesChange,
     onConnect,
     selectNode,
+    addNode,
   } = useWorkflowStore();
 
-  const handleDrop = useCallback(
+  const onDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  }, []);
+
+  const onDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault();
 
-      if (!reactFlowWrapper.current || !reactFlowInstance) return;
+      if (!reactFlowWrapper.current || !reactFlowInstance) {
+        console.log('No wrapper or instance');
+        return;
+      }
 
-      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
       const type = event.dataTransfer.getData('application/reactflow');
+      console.log('Dropped type:', type);
 
-      if (!type) return;
+      if (!type) {
+        console.log('No type found in dataTransfer');
+        return;
+      }
 
       const position = reactFlowInstance.screenToFlowPosition({
-        x: event.clientX - reactFlowBounds.left,
-        y: event.clientY - reactFlowBounds.top,
+        x: event.clientX,
+        y: event.clientY,
       });
 
-      onDrop({ ...event, dataTransfer: { ...event.dataTransfer, getData: () => type } } as any);
-      useWorkflowStore.getState().addNode(type, position);
+      console.log('Adding node at position:', position);
+      addNode(type, position);
     },
-    [reactFlowInstance, onDrop]
+    [reactFlowInstance, addNode]
   );
 
   return (
-    <div ref={reactFlowWrapper} className="flex-1 h-full">
+    <div
+      ref={reactFlowWrapper}
+      className="flex-1 h-full"
+      style={{ width: '100%', height: '100%' }}
+    >
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -64,9 +75,10 @@ const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({ onDrop, onDragOver }) =
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onInit={setReactFlowInstance}
-        onDrop={handleDrop}
+        onDrop={onDrop}
         onDragOver={onDragOver}
         onPaneClick={() => selectNode(null)}
+        onNodeClick={(_, node) => selectNode(node)}
         nodeTypes={nodeTypes}
         fitView
         snapToGrid
@@ -101,9 +113,9 @@ const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({ onDrop, onDragOver }) =
   );
 };
 
-const WorkflowCanvasWrapper: React.FC<WorkflowCanvasProps> = (props) => (
+const WorkflowCanvasWrapper: React.FC = () => (
   <ReactFlowProvider>
-    <WorkflowCanvas {...props} />
+    <WorkflowCanvas />
   </ReactFlowProvider>
 );
 
